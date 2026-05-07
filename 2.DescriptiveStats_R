@@ -1,0 +1,142 @@
+# ==================================================
+# SESSION II - Descriptive Statistics in R
+# ==================================================
+
+# 1 - Load the dataset and packages
+
+# Download the dataset titanic.csv from canvas and save it to your R folder
+# Load the dataset. Call it titanic
+titanic <- read.csv("titanic.csv")
+# Optional: open spreadsheet-like viewer in RStudio
+View(titanic)
+
+# 2 - First look at the dataset
+
+# Show the first rows
+head(titanic)
+
+# Show structure: variable names, types, etc.
+str(titanic)
+
+# Quick overall summary
+summary(titanic)
+
+# Show variable names only
+names(titanic)
+
+# 3 - Focus on one numerical variable: age
+
+
+# Look directly at the age column
+titanic$age
+
+# Quick summary of age
+summary(titanic$age)
+# summary() gives:
+# minimum
+# 1st quartile
+# median
+# mean
+# 3rd quartile
+# maximum
+# and number of NA values
+
+# Count how many values are missing
+sum(is.na(titanic$age))
+
+
+# 4 - Missing values (NA)
+
+
+# Try calculating the mean directly
+mean(titanic$age)
+
+# This returns NA because age contains missing values.
+
+# To ignore missing values, add na.rm = TRUE
+mean(titanic$age, na.rm = TRUE)
+
+# Same idea for the median
+median(titanic$age, na.rm = TRUE)
+
+
+# 5 - Measures of spread
+
+
+# Variance
+var(titanic$age, na.rm = TRUE)
+
+# Standard deviation
+sd(titanic$age, na.rm = TRUE)
+
+# Save them as objects
+var_age <- var(titanic$age, na.rm = TRUE)
+sd_age <- sd(titanic$age, na.rm = TRUE)
+
+var_age
+sd_age
+
+# Check that SD is the square root of the variance
+sqrt(var_age)
+
+
+# 6 - Histogram of age
+
+# Simple histogram
+hist(titanic$age)
+
+# Better labeled histogram
+hist(titanic$age,
+     main = "Distribution of Titanic Passenger Ages",
+     xlab = "Age",
+     ylab = "Frequency")
+
+# Interpretation questions:
+# Is the distribution symmetric or skewed?
+# Where is the center?
+# Are there many young passengers?
+# Are there extreme values?
+
+
+
+# 7 - Boxplot of age
+
+
+boxplot(titanic$age,
+        main = "Boxplot of Titanic Passenger Ages",
+        ylab = "Age")
+
+# Interpretation questions:
+# Where is the median?
+# Is the spread large or small?
+# Are there possible outliers?
+
+
+
+# 8 - Describing a categorical variable
+
+
+# The variable "survive" is categorical (Yes or No)
+
+titanic$survive
+
+# Count how many passengers survived or did not survive
+table(titanic$survive)
+
+# Convert counts into proportions
+prop.table(table(titanic$survive))
+
+# What proportion of passengers survived?
+
+# Bar plot of survival counts
+barplot(table(titanic$survive),
+        main = "Titanic Survival Counts",
+        xlab = "Survival",
+        ylab = "Number of Passengers")
+
+# Bar plot of proportions
+barplot(prop.table(table(titanic$survive)),
+        main = "Proportion of Titanic Survivors",
+        xlab = "Survival",
+        ylab = "Proportion")
+
