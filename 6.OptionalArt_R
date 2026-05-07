@@ -1,0 +1,408 @@
+#--------------------------------------
+# BONUS: Having fun with visual packages in R
+#---------------------------------------
+
+# 1 - aRtsy : direct generative art
+
+install.packages("aRtsy")   # only first time
+library(aRtsy)
+
+set.seed(1)
+canvas_flame(colors = c("black", "orange", "red"))
+
+set.seed(2)
+canvas_flame(colors = c("navy", "cyan", "white"))
+
+set.seed(10)
+canvas_flow(colors = c("black", "purple", "pink"))
+
+set.seed(5)
+canvas_smoke(colors = c("darkgreen", "yellow", "orange"))
+
+# If a plot looks blank, try:
+# dev.off()
+
+# 2 - ambient + ggplot2 : texture / noise art
+
+install.packages(c("ambient", "ggplot2", "dplyr"))
+library(ambient)
+library(ggplot2)
+library(dplyr)
+
+# Create a grid of x/y positions
+noise_df <- expand.grid(
+  x = 1:400,
+  y = 1:200
+)
+
+# Generate Perlin noise
+noise_df$z <- gen_perlin(
+  x = noise_df$x,
+  y = noise_df$y,
+  frequency = 0.03
+)
+
+# Turn it into an image
+ggplot(noise_df, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() 
+
+# Stretch the coordinates to create diagonal stripe-like patterns
+noise_df2 <- expand.grid(
+  x = 1:500,
+  y = 1:250
+)
+
+noise_df2$z <- gen_perlin(
+  x = noise_df2$x * 0.08 + noise_df2$y * 0.25,
+  y = noise_df2$y * 0.03,
+  frequency = 0.05
+)
+
+ggplot(noise_df2, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void()
+
+ggplot(noise_df2, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("yellow", "pink", "cyan", "purple", "orange"))
+
+# 3 - qqworldcloud: fun text art
+
+install.packages(c("ggwordcloud", "ggplot2"))
+library(ggwordcloud)
+library(ggplot2)
+
+words <- data.frame(
+  word = c("Manja", "DNA", "RStudio", "evolution", "R", "statistics",
+           "genes", "ecology", "data", "plants", "cats", "science"),
+  n = c(20, 16, 14, 13, 12, 11, 10, 9, 8, 8, 7, 7)
+)
+
+ggplot(words, aes(label = word, size = n, color = n)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 18) +
+  theme_minimal()
+
+#Make it a cloud
+ggplot(words, aes(label = word, size = n, color = n)) +
+  geom_text_wordcloud_area() +
+  scale_size_area(max_size = 18) +
+  theme_minimal()
+
+#Change orientation of words
+ggplot(words, aes(label = word, size = n, angle = 90)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15)
+
+#Change orientation of words: all vertical
+ggplot(words, aes(label = word, size = n, angle = 90)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15)
+
+# control orientation per word: 
+words$angle <- c(0, 90, 0, 90, 45, 0, 90, 0, 0, 90, 0, 45, 90, 0, 0)
+ggplot(words, aes(label = word, size = n, angle = angle)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15)
+
+# Random orientation clean script: 
+set.seed(1)
+words$angle <- sample(c(0, 90), nrow(words), replace = TRUE)
+
+ggplot(words, aes(label = word, size = n, angle = angle)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15)
+
+# 4 - magick: image manipulation
+
+install.packages("magick")
+library(magick)
+
+# Create a blank image
+img <- image_blank(width = 500, height = 300, color = "white")
+
+# Add text
+img_text <- image_annotate(
+  img,
+  "R is fun",
+  size = 60,
+  color = "black",
+  gravity = "center"
+)
+
+img_text
+
+#Blur, rotate and stylize
+image_blur(img_text, radius = 5)
+image_rotate(img_text, 15)
+image_negate(img_text)
+
+#Combine two images side by side
+img1 <- image_blank(300, 300, color = "orange")
+img2 <- image_blank(300, 300, color = "skyblue")
+
+combined <- image_append(c(img1, img2))
+combined
+
+
+# A better attached image script: 
+install.packages(c("ambient", "ggplot2"))
+library(ambient)
+library(ggplot2)
+
+art_df <- expand.grid(
+  x = 1:700,
+  y = 1:250
+)
+
+art_df$z <- gen_perlin(
+  x = art_df$x * 0.12 + art_df$y * 0.35,
+  y = art_df$y * 0.04,
+  frequency = 0.04
+)
+
+ggplot(art_df, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("yellow", "pink", "cyan", "purple", "orange", "white"))
+
+#Change colors:
+ggplot(art_df, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("black", "white", "orange")) 
+
+
+# BONUS - Generative texture art with ambient
+
+
+# Install once if needed
+install.packages(c("ambient", "ggplot2", "dplyr", "patchwork"))
+
+# Load packages
+library(ambient)
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+
+# 1 - Basic noise image
+
+
+# Make a grid of x and y positions
+art1 <- expand.grid(
+  x = 1:400,
+  y = 1:250
+)
+
+# Generate Perlin noise
+art1$z <- gen_perlin(
+  x = art1$x,
+  y = art1$y,
+  frequency = 0.03
+)
+
+# Plot
+p1 <- ggplot(art1, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void()
+
+p1
+
+
+# 2 - Same image with bright colors
+
+
+p2 <- ggplot(art1, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("yellow", "pink", "cyan", "purple", "orange", "white"))
+
+p2
+
+
+# 3 - Make diagonal streaks
+
+
+art2 <- expand.grid(
+  x = 1:500,
+  y = 1:250
+)
+
+# Transform coordinates before generating noise
+# This creates a more stretched / diagonal look
+art2$z <- gen_perlin(
+  x = art2$x * 0.10 + art2$y * 0.30,
+  y = art2$y * 0.04,
+  frequency = 0.05
+)
+
+p3 <- ggplot(art2, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("yellow", "pink", "cyan", "purple", "orange"))
+
+p3
+
+
+# 4 - Black / white / orange striped version
+
+
+p4 <- ggplot(art2, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("black", "white", "orange"))
+
+p4
+
+# 5 - Stronger contrast version
+
+# Convert continuous noise to categories
+art2$z_cut <- cut(
+  art2$z,
+  breaks = 6,
+  labels = c("A", "B", "C", "D", "E", "F")
+)
+
+p5 <- ggplot(art2, aes(x, y, fill = z_cut)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_manual(values = c("black", "white", "orange", "gold", "grey70", "grey20"))
+
+p5
+
+
+# 6 - A softer cloud-like version with simplex noise
+
+art3 <- expand.grid(
+  x = 1:400,
+  y = 1:250
+)
+
+art3$z <- gen_simplex(
+  x = art3$x * 0.02,
+  y = art3$y * 0.02,
+  frequency = 0.08
+)
+
+p6 <- ggplot(art3, aes(x, y, fill = z)) +
+  geom_raster() +
+  coord_equal() +
+  theme_void() +
+  scale_fill_gradientn(colors = c("navy", "skyblue", "white", "pink"))
+
+p6
+
+# 7 - Put several panels together
+
+(p2 | p4 | p3)
+
+
+# 8 - Save one image
+
+
+ggsave("ambient_art.png", plot = p3, width = 10, height = 5, dpi = 300) 
+
+
+# BONUS - Simple animation in magick
+
+
+# Install once if needed
+install.packages("magick")
+
+# Load package
+library(magick)
+
+
+# 1 - Blinking text
+
+
+# Frame 1: visible text
+f1 <- image_blank(width = 500, height = 250, color = "white") |>
+  image_annotate("Lady Manja the Swift", size = 50, color = "pink", gravity = "center")
+
+# Frame 2: no text
+f2 <- image_blank(width = 500, height = 250, color = "white")
+
+# Repeat frames to make a blinking GIF
+blink_frames <- c(f1, f2, f1, f2, f1, f2)
+
+blink_gif <- image_animate(blink_frames, fps = 2)
+blink_gif
+
+# Save
+image_write(blink_gif, path = "blink.gif")
+
+
+# 2 - Moving object across the screen
+
+
+frames_move <- image_join(lapply(seq(20, 420, by = 40), function(pos) {
+  image_blank(width = 500, height = 250, color = "white") |>
+    image_annotate("●", size = 80, color = "blue", location = paste0("+", pos, "+100"))
+}))
+
+move_gif <- image_animate(frames_move, fps = 4)
+move_gif
+
+image_write(move_gif, path = "moving_dot.gif")
+
+
+# 3 - Moving text
+
+
+frames_text <- image_join(lapply(seq(10, 350, by = 30), function(pos) {
+  image_blank(width = 500, height = 250, color = "black") |>
+    image_annotate("(=^ω^=)", size = 90, color = "yellow", location = paste0("+", pos, "+90"))
+}))
+
+text_gif <- image_animate(frames_text, fps = 5)
+text_gif
+
+image_write(text_gif, path = "moving_text.gif")
+
+
+# 4 - Morph between two images
+
+
+img_a <- image_blank(500, 250, color = "white") |>
+  image_annotate("(=^ω^=)", size = 140, color = "red", gravity = "center")
+
+img_b <- image_blank(500, 250, color = "white") |>
+  image_annotate("<^..^>", size = 140, color = "blue", gravity = "center")
+
+morph_frames <- c(img_a, img_b) |>
+  image_morph(frames = 12) |>
+  image_animate(fps = 5)
+
+morph_frames
+
+image_write(morph_frames, path = "morph_AB.gif")
+
+
+# 5 - Rotate an object over time
+
+
+base_img <- image_blank(400, 400, color = "white") |>
+  image_annotate("<^..^>", size = 180, color = "darkgreen", gravity = "center")
+
+rot_frames <- image_join(lapply(seq(0, 330, by = 30), function(a) {
+  image_rotate(base_img, a)
+}))
+
+rot_gif <- image_animate(rot_frames, fps = 5)
+rot_gif
+
+image_write(rot_gif, path = "rotate_R.gif")
