@@ -1,0 +1,116 @@
+# ----------------------------------
+# SESSION I: Intro to R and RStudio
+# ----------------------------------
+
+# Everything you write here is a comment and doesn't compute
+# Best practice: comment everything you are doing with #
+
+# IMPORTANT RULE
+# Always work inside a project folder.
+# This ensures that R can find your files.
+
+
+# 1 - Set working directory
+
+
+# Option 1 : Create a new project (file, new project). 
+# You will open this RStudio Project during the workshop. that you already saved previously (.Rproj)
+# File → Open Project → select your project folder
+
+# Option 2: set working directory manually if not opening project
+setwd("D:/OneDrive - Fulbright University Vietnam/Courses/CORE104_SI/R_workshops")
+
+# See files inside the working directory
+list.files()
+
+
+# 2 - R as a calculator
+
+
+# Section 2 - Assigning values to objects
+# Keep object names simple. No capital letters and no space. Can use _ or - 
+cat_age <- 7
+x <- 5
+y <- 12
+
+cat_age
+x
+y
+
+x + y
+x * y
+
+
+# 3 - Create a vector
+
+
+cat_age <- c(4, 7, 2, 9, 5)
+cat_age
+
+length(cat_age)
+min(cat_age)
+max(cat_age)
+sort(cat_age)
+
+cat_age_10years_later <- cat_age +2
+cat_age_10years_later
+
+cat_age_difference <- cat_age_10years_later - cat_age
+cat_age_difference
+
+# 4 - Create a small data frame manually
+
+
+students <- data.frame(
+  name = c("A", "B", "C", "D", "E"),
+  height = c(160, 165, 170, 152, 166),
+  weight = c(52, 60, 68, 50, 63)
+)
+students
+
+
+# 5 - Access columns
+
+students$height
+students$weight
+
+
+# 6 - Simple graphs
+
+hist(students$height)
+plot(students$height, students$weight)
+
+
+
+# 7 - Packages
+
+# A package is a collection of functions written by other programmers.
+# Packages extend the capabilities of R.
+
+# Install a package (only once)
+install.packages("ggplot2")
+
+# Load (activate) the package every session
+library(ggplot2)
+
+#Use ggplot2 to build the student graph
+#General use: plotname <- ggplot(data, variables) + type of graph 
+
+studentplot <- ggplot(data = students, aes(x = height, y = weight)) + geom_point()
+studentplot
+
+# 8 - Updating R and RStudio
+
+
+# To update R
+
+install.packages("installr")
+library(installr)
+updateR()
+
+# To update packages
+
+update.packages(ggplot2) 
+
+# RStudio is updated through the application:
+# Help → Check for Updates
