@@ -1,0 +1,168 @@
+# =========================================================
+# Stat V: Data Visualization in R — Workshop Script
+# =========================================================
+
+#We will use built-in datasets
+
+# Install package if needed
+install.packages("ggplot2")
+
+# Load ggplot2
+library(ggplot2)
+
+# =========================================================
+# 1. HISTOGRAM — airquality dataset
+# =========================================================
+
+data("airquality")
+head(airquality)
+
+# Base R 
+hist(airquality$Temp,
+     main = "Distribution of temperature",
+     xlab = "Temperature",
+     col = "lightblue")
+
+# ggplot2 
+ggplot(airquality, aes(x = Temp)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  labs(title = "Distribution of temperature",
+       x = "Temperature",
+       y = "Count")
+
+
+# =========================================================
+# 2. BOXPLOT — iris dataset
+# =========================================================
+
+data("iris")
+head(iris)
+
+# Base R
+boxplot(Petal.Length ~ Species,
+        data = iris,
+        main = "Petal length by species",
+        xlab = "Species",
+        ylab = "Petal length",
+        col = "lightgreen")
+
+# ggplot2
+ggplot(iris, aes(x = Species, y = Petal.Length)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Petal length by species",
+       x = "Species",
+       y = "Petal length")
+
+# ggplot2 with points 
+ggplot(iris, aes(x = Species, y = Petal.Length, fill = Species)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.6, size = 1.8) +
+  labs(title = "Petal length by species",
+       x = "Species",
+       y = "Petal length")
+
+
+# =========================================================
+# 3. SCATTERPLOT — mtcars dataset
+# =========================================================
+
+data("mtcars")
+head(mtcars)
+
+# Base R 
+plot(mtcars$wt, mtcars$mpg,
+     main = "Fuel efficiency and car weight",
+     xlab = "Weight",
+     ylab = "Miles per gallon",
+     pch = 16)
+
+# ggplot2
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  labs(title = "Fuel efficiency and car weight",
+       x = "Weight",
+       y = "Miles per gallon")
+
+#  ggplot2 with trend line
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Fuel efficiency and car weight",
+       x = "Weight",
+       y = "Miles per gallon")
+
+
+# =========================================================
+# 4. GROUPED BOXPLOT — warpbreaks dataset
+# =========================================================
+
+data("warpbreaks")
+head(warpbreaks)
+
+#  Base R 
+boxplot(breaks ~ wool + tension,
+        data = warpbreaks,
+        main = "Breaks by wool type and tension",
+        xlab = "Wool and tension",
+        ylab = "Number of breaks",
+        col = "lightpink")
+
+
+#  ggplot2 with points
+ggplot(warpbreaks, aes(x = tension, y = breaks, fill = wool)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(0.75)) +
+  geom_jitter(aes(color = wool),
+              position = position_jitterdodge(jitter.width = 0.15,
+                                              dodge.width = 0.75),
+              alpha = 0.6,
+              size = 1.8) +
+  labs(title = "Breaks by wool type and tension",
+       x = "Tension",
+       y = "Number of breaks")
+
+# =========================================================
+# 5. VIOLIN PLOT — iris dataset
+# =========================================================
+# "A violin plot is like a boxplot + distribution.
+# It shows not just the summary (median, quartiles),
+# but also the shape of the data."
+
+#  ggplot2 + raw data (best for teaching) 
+ggplot(iris, aes(x = Species, y = Petal.Length, fill = Species)) +
+  geom_violin(trim = FALSE, alpha = 0.5) +
+  geom_jitter(width = 0.15, alpha = 0.5, size = 1.5) +
+  labs(title = "Petal length distribution with individual data points",
+       x = "Species",
+       y = "Petal length")
+
+# "The width of the violin shows where data points are concentrated.
+# The boxplot inside gives the median and quartiles.
+# The dot shows the mean."
+
+
+#Adding the mean and deviation: we are layering multiple geoms on the same plot
+ggplot(iris, aes(x = Species, y = Petal.Length, fill = Species)) +
+  geom_violin(trim = FALSE, alpha = 0.5) +
+  geom_jitter(width = 0.15, alpha = 0.5, size = 1.5) +
+
+  # Mean ± SD error bars
+  stat_summary(
+    fun.data = mean_sdl,
+    fun.args = list(mult = 1),  # 1 SD
+    geom = "errorbar",
+    width = 0.1,
+    color = "black",
+    size = 0.8
+  ) +
+
+  # Mean point
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    size = 2.5,
+    color = "black"
+  ) +
+
+  labs(title = "Petal length distribution with mean ± SD",
+       x = "Species",
+       y = "Petal length")
