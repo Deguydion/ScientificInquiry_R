@@ -1,0 +1,102 @@
+# =========================================================
+# Session IV: ANOVA and post-hoc comparisons in R
+# Dataset: cuckooeggs.csv
+# =========================================================
+
+
+# 1. Load the dataset and package
+
+# Set your working directory first if needed, or use the full file path.
+# Example:
+# setwd("C:/Users/YourName/Documents/DataForLabs")
+
+cuckoo <- read.csv("cuckooeggs.csv")
+#cuckoo has measurement of egg size based on bird host species
+
+
+#Rmisc provides a great sumary of the dataset
+install.packages("Rmisc")
+library(Rmisc) 
+
+
+# 2. Inspect the dataset
+
+head(cuckoo)      # show the first few rows
+str(cuckoo)       # show variable types
+summary(cuckoo)   # quick summary of the variables
+table(cuckoo$host_species) # How many eggs are there from each host species?
+
+#All variables summarized, from Rmisc, breaks down the mean per species
+summarySE(cuckoo, measurevar = "egg_length",groupvars = "host_species") #summary 
+
+
+# 3. Make sure host_species is treated as a categorical variable
+
+# Usually R already reads it as text, but converting to factor is safer.
+cuckoo$host_species <- as.factor(cuckoo$host_species)
+
+# Lists the variable levels
+levels(cuckoo$host_species)
+
+
+# 4. Visualize the data simply
+
+#Show distribution of data
+hist(cuckoo$egg_length,
+     main = "Distribution of cuckoo egg lengths",
+     xlab = "Egg length (mm)",
+     col = "lightblue")
+
+# Boxplot of egg length by host species
+boxplot(egg_length ~ host_species,
+        data = cuckoo,
+        xlab = "Host species",
+        ylab = "Cuckoo egg length (mm)",
+        main = "Cuckoo egg lengths by host species",
+        las = 2)
+
+# Optional: add stripchart to see individual points
+stripchart(egg_length ~ host_species,
+           data = cuckoo,
+           vertical = TRUE,
+           method = "jitter",
+           pch = 16,
+           add = TRUE)
+
+# 5. State the hypotheses
+# H0: mean egg length is the same across all host species
+# H1: at least one host species has a different mean egg length
+
+# 6. Test assumptions and run the ANOVA with aov function
+
+#Tests homogeneity of variance
+bartlett.test(egg_length ~ host_species, data = cuckoo)
+
+#Tests normality within groups
+by(cuckoo$egg_length, cuckoo$host_species, shapiro.test)
+
+# Optional: If assumptions are not met → transform and test assumptions again
+cuckoo$log_egg_length <- log(cuckoo$egg_length)
+by(cuckoo$log_egg_length, cuckoo$host_species, shapiro.test)
+bartlett.test(log_egg_length ~ host_species, data = cuckoo)
+
+#Run the anova or the kruskall
+cuckoo_aov <- aov(egg_length ~ host_species, data = cuckoo) #Anova if data assumptions met
+kruskal.test(egg_length ~ host_species, data = cuckoo) #kruskall if non parametric needed
+
+# View the ANOVA table
+anova(cuckoo_aov)
+
+# 7. Post-hoc test: Tukey HSD and Wilcox
+# This compares every pair of host species
+TukeyHSD(cuckoo_aov) #from ANOVA
+#diff = effect size
+#lwr and upr = confidence interval at 95%. Range of values where the true difference between the groups is likely to be
+pairwise.wilcox.test(cuckoo$egg_length,cickoo$host_species, p.adjust.method = "BH") # for kruskall
+
+# 8. Optional: plot Tukey results
+plot(TukeyHSD(cuckoo_aov), las = 1)
+
+# 9. VERY Optional: simple diagnostic plots
+# These are not the main focus of the class, but can be shown briefly.
+plot(cuckoo_aov)
