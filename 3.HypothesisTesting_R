@@ -1,0 +1,70 @@
+# ==================================================
+# SESSION III - Hypothesis Testing in R
+# ==================================================
+
+# 1. Cat paw preference
+
+# Observed data
+right_paw <- 118
+total_trials <- 200
+right_paw / total_trials
+
+# Null hypothesis: The cat has no paw preference (P(paw) = 0.5)
+binom.test(right_paw, total_trials, p = 0.5)
+
+# 2 — Reaction time experiment
+
+# Research question:
+# Does caffeine affect reaction time?
+
+# Reaction time measured in milliseconds
+# Lower values = faster reactions
+
+control <- c(245, 260, 250, 255, 240, 248, 262, 251, 247, 258)
+caffeine <- c(230, 225, 235, 240, 228, 232, 238, 226, 234, 229)
+control
+caffeine
+
+length(control)
+length(caffeine)
+
+
+# Means
+mean(control)
+mean(caffeine)
+#Which group appears faster?
+
+# Standard deviations
+sd(control)
+sd(caffeine)
+
+# Difference in means
+mean(control) - mean(caffeine)
+
+#Visualize teh data
+boxplot(control, caffeine,
+        names = c("Control", "Caffeine"),
+        ylab = "Reaction time (ms)",
+        main = "Effect of caffeine on reaction time")
+
+# Add individual data points
+stripchart(list(control, caffeine),
+           method = "jitter",
+           vertical = TRUE,
+           add = TRUE,
+           pch = 16)
+
+#Do the groups overlap a lot?
+
+# Perform the t-test
+t.test(control, caffeine)
+#df = degrees of freedom. Number of independent values in the data that are free to vary when calculating a statistic
+
+# Interpretation
+# H0: mean reaction time is the same in both groups
+# H1: mean reaction time differs between groups
+# p < 0.05 → reject H0
+
+
+t.test(control, caffeine)$conf.int
+#caffeine group is between 14 and 26ms faster than control group at 95% confidence.
