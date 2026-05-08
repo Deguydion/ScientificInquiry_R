@@ -92,7 +92,7 @@ anova(cuckoo_aov)
 TukeyHSD(cuckoo_aov) #from ANOVA
 #diff = effect size
 #lwr and upr = confidence interval at 95%. Range of values where the true difference between the groups is likely to be
-pairwise.wilcox.test(cuckoo$egg_length,cickoo$host_species, p.adjust.method = "BH") # for kruskall
+pairwise.wilcox.test(cuckoo$egg_length,cuckoo$host_species, p.adjust.method = "BH") # for kruskall
 
 # 8. Optional: plot Tukey results
 plot(TukeyHSD(cuckoo_aov), las = 1)
